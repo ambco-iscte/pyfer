@@ -6,7 +6,6 @@ from xml.etree import ElementTree
 
 # PyFER - Group 02
 # Afonso Caniço     92494
-# Gustavo Ferreira  92888
 # Samuel Correia    92619
 
 class BoundingBox:
@@ -23,6 +22,3 @@ class BoundingBox:
         self.width = end[0] - start[0]
         self.height = end[1] - start[1]
         self.size = (self.width, self.height)
-
-
-
