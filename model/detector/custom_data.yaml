@@ -1,1 +1,6 @@
-names: ["face"]
+train: detector_training_data/dataset/train
+val: detector_training_data/dataset/val
+test: detector_training_data/dataset/test
+
+names:
+0: face

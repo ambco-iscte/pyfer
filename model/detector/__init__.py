@@ -1,14 +1,15 @@
-from ultralytics import YOLO
-
 from model.detector.files import create_labels, shuffle_and_split_files
 
 FACES_FILE = "detector_training_data/faces.csv"
 IMAGE_FOLDER = "detector_training_data/images"
-#images = load_images(IMAGE_FOLDER, FACES_FILE)
+LABEL_FOLDER = "detector_training_data/images"
+DATASET_FOLDER = "detector_training_data/dataset"
 
-#create_labels(IMAGE_FOLDER, FACES_FILE, "detector_training_data/labels")
+if __name__ == "__main__":
+    # images = load_images(IMAGE_FOLDER, FACES_FILE)
+    create_labels(IMAGE_FOLDER, FACES_FILE, LABEL_FOLDER)
+    shuffle_and_split_files(IMAGE_FOLDER, LABEL_FOLDER, DATASET_FOLDER)
 
-shuffle_and_split_files(IMAGE_FOLDER)
 
 # Load a model
 #model = YOLO('yolov8n.pt')  # load a pretrained model (recommended for training)

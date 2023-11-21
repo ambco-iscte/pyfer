@@ -1,4 +1,5 @@
 import os
+import shutil
 from math import floor
 from random import shuffle
 
@@ -80,7 +81,7 @@ def create_labels(images_folder: str, bounds_path: str, output_folder: str):
             image_labels = image_labels + "0" + " " + str(x_centre_scaled) + " " + str(y_centre_scaled) + " " + str(
                 width_scaled) + " " + str(height_scaled) + "\n"
 
-        if not os.path.exists(output_folder):
+        if not os.path.isdir(output_folder):
             os.makedirs(output_folder)
 
         f = open(output_folder + "/" + "".join(image_name) + ".txt", 'w')
@@ -88,29 +89,44 @@ def create_labels(images_folder: str, bounds_path: str, output_folder: str):
         f.close()
 
 
-def shuffle_and_split_files(images_folder, train_split=0.8, val_split=0.1):
-
-    """
-    # function to move files from source to detination
-    def move_files(data_list, source_path, destination_path):
+def shuffle_and_split_files(images_folder, labels_folder, output_set_folder,
+                            train_split=0.8, val_split=0.1, resized_image_size_x = 640, resized_image_size_y = 640):
+    def move_labels_images_and_resize(files_to_move, output_folder):
         i = 0
-        for file in data_list:
-            filepath = os.path.join(source_path, file)
-            dest_path = os.path.join(data_path, destination_path)
-            if not os.path.isdir(dest_path):
-                os.makedirs(dest_path)
-            shutil.move(filepath, dest_path)
+        if os.path.isdir(output_folder):
+            shutil.rmtree(output_folder)
+        os.makedirs(output_folder)
+
+        for image in files_to_move:
+            # Moves labels considering the image name with the extension: .txt
+            label_path = os.path.join(labels_folder, "".join(os.path.splitext(image)[:-1])+".txt")
+            shutil.copy(label_path, output_folder)
+
+            # Move a resized version of the images to the output folder.
+            image_path = os.path.join(images_folder, image)
+            img_resized = cv.resize(cv.imread(image_path), (resized_image_size_x, resized_image_size_y))
+            output_image_path = os.path.join(output_folder, image)
+            cv.imwrite(output_image_path, img_resized)
+
             i = i + 1
-        print("Number of files transferred:", i)
-    """
+        print("Number of images/label files copied to", output_folder, ":", i)
 
     filenames = os.listdir(images_folder)
+
+    print("Total number of images: ", len(filenames))
+
     shuffle(filenames)
 
     train_split_index = floor(len(filenames) * train_split)
     val_split_index = train_split_index + floor(len(filenames) * val_split)
-    training = filenames[:train_split_index]
-    val = filenames[train_split_index + 1:val_split_index]
-    test = filenames[val_split_index + 1:]
+    train = filenames[:train_split_index]
+    val = filenames[train_split_index:val_split_index]
+    test = filenames[val_split_index:]
 
-    print(train_split_index, val_split_index)
+    print("Training images:", len(train))
+    print("Validation images:", len(val))
+    print("Testing images:", len(test))
+
+    move_labels_images_and_resize(train, output_set_folder + "/train")
+    move_labels_images_and_resize(val, output_set_folder + "/val")
+    move_labels_images_and_resize(test, output_set_folder + "/test")
