@@ -3,6 +3,7 @@ from collections import defaultdict
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import yaml
 
 from torchvision.models import mobilenet_v3_small
 
@@ -72,8 +73,8 @@ def fit(
 
             print(f'Loss: {loss.item()}')
 
-    append('train', x_train, y_train)
-    append('val', x_val, y_val)
+        append('train', x_train, y_train)
+        append('val', x_val, y_val)
 
     return metrics
 
@@ -84,7 +85,9 @@ def main():
     #  How do we set trainable=False?
 
     input_size = 2304  # 48*48
-    num_classes = 7
+
+    config = yaml.load(open('config.yaml'), yaml.CLoader)
+    num_classes = len(config['emotions'])
 
     pretrained_model = mobilenet_v3_small(weights="MobileNet_V3_Small_Weights.DEFAULT")
     # Equivalent to setting include_top = False
@@ -126,6 +129,8 @@ def main():
         0.8,
         0.1
     )
+
+    # TODO convert y (labels) to one hot encoding, possibly with config.yaml order
 
     # TODO Format the labels in a way that the model accepts
     # Currently, they are a string and the model does not know how to interpret this
