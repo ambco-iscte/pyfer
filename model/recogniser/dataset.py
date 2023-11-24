@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from model.recogniser.tensorutils import encode
+
 
 def parse(pixel_data: str, shape: (int, int)) -> np.ndarray:
     """
@@ -15,11 +17,10 @@ def parse(pixel_data: str, shape: (int, int)) -> np.ndarray:
     :param shape: The desired image shape.
     :return: A grayscale image of the desired shape.
     """
-    data = pixel_data.split()
     pixels: list[(int, int, int)] = []
-    for lum in data:
+    for lum in pixel_data.split():
         pixels.append(int(lum))
-    return np.asarray(pixels, dtype=np.uint8).reshape(shape)
+    return cv.cvtColor(np.asarray(pixels, dtype=np.uint8).reshape(shape), cv.COLOR_GRAY2RGB)
 
 
 def write(images: list[(np.ndarray, str)], folder: str):
@@ -90,9 +91,10 @@ def load(
     x_train = [img for (img, _) in train]
     x_val = [img for (img, _) in val]
     x_test = [img for (img, _) in test]
-    y_train = [emotion for (_, emotion) in train]
-    y_val = [emotion for (_, emotion) in train]
-    y_test = [emotion for (_, emotion) in train]
+
+    y_train = [encode(emotion, emotions) for (_, emotion) in train]
+    y_val = [encode(emotion, emotions) for (_, emotion) in val]
+    y_test = [encode(emotion, emotions) for (_, emotion) in test]
 
     return x_train, x_val, x_test, y_train, y_val, y_test
 
