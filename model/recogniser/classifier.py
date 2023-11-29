@@ -8,6 +8,7 @@ import tensorflow as tf
 
 import yaml
 from keras import layers
+from keras.src.applications import MobileNetV3Small, ResNet50V2
 from keras.src.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 
@@ -25,7 +26,7 @@ tf.get_logger().setLevel('INFO')
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience: int):
+def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience: int, learning_rate: float = 0.001):
     # Get data
     x_train, x_val, x_test, y_train, y_val, y_test = load(
         'fer2013.csv',
@@ -60,6 +61,72 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
     print(f'Test data shape         = {x_test.shape}')
     print(f'Test labels shape       = {y_test.shape}\n')
 
+    with_pretrained_model = False
+    if with_pretrained_model:
+        # pretrained_model = MobileNetV3Small(input_shape=(48, 48, 3), include_top=False)
+        convolutional_model = ResNet50V2(input_shape=(48, 48, 3), include_top=False)
+        convolutional_model.trainable = False
+
+        for layer in convolutional_model.layers[-3:]:
+            layer.trainable = True
+    else:
+        convolutional_model = tf.keras.Sequential([
+            layers.Conv2D(
+                filters=64,
+                kernel_size=(5, 5),
+                input_shape=(img_width, img_height, 3),
+                activation='elu',
+                padding='same',
+                kernel_initializer='he_normal',
+            ),
+            layers.BatchNormalization(),
+            layers.Conv2D(
+                filters=64,
+                kernel_size=(5, 5),
+                activation='elu',
+                padding='same',
+                kernel_initializer='he_normal',
+            ),
+            layers.BatchNormalization(),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(0.4),
+            layers.Conv2D(
+                filters=128,
+                kernel_size=(3, 3),
+                activation='elu',
+                padding='same',
+                kernel_initializer='he_normal',
+            ),
+            layers.BatchNormalization(),
+            layers.Conv2D(
+                filters=128,
+                kernel_size=(3, 3),
+                activation='elu',
+                padding='same',
+                kernel_initializer='he_normal',
+            ),
+            layers.BatchNormalization(),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(0.4),
+            layers.Conv2D(
+                filters=256,
+                kernel_size=(3, 3),
+                activation='elu',
+                padding='same',
+                kernel_initializer='he_normal',
+            ),
+            layers.BatchNormalization(),
+            layers.Conv2D(
+                filters=256,
+                kernel_size=(3, 3),
+                activation='elu',
+                padding='same',
+                kernel_initializer='he_normal',
+            ),
+            layers.BatchNormalization(),
+            layers.MaxPooling2D(pool_size=(2, 2))
+        ])
+
     # This callback will try to minimise the validation loss, and will stop the learning process if
     # its value has stagnated for at least 5 consecutive epochs.
     # We can check how many epochs were run with len(history.history['loss']).
@@ -68,17 +135,33 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
     # CNN using categorical classification with softmax activation
     model_title = f"{model_name}\nPyFER Emotion Classifier"
     model = tf.keras.Sequential([
-        layers.RandomFlip("horizontal_and_vertical", input_shape=(img_height, img_width, 3)),
+        layers.RandomFlip("horizontal", input_shape=(img_height, img_width, 3)),
         layers.RandomRotation(0.2),
-
         layers.Rescaling(1. / 255),
+
+        convolutional_model,
+
+        layers.Dropout(0.5),
+        layers.Flatten(),
+
+        layers.Dense(128),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.Dropout(0.2),
+
+        layers.Dense(128),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.Dropout(0.2),
+
+        layers.Dense(num_classes, activation='softmax')
 
         # TODO: figure out a model (everything we've tried so far sucks)
     ], name=model_name)
 
     model.compile(
         loss=tf.losses.CategoricalCrossentropy(),  # Calculates entropy for multi-class classification problems
-        optimizer=tf.optimizers.AdamW(learning_rate=0.001),  # Variation of Gradient Descent
+        optimizer=tf.optimizers.AdamW(learning_rate=learning_rate),  # Variation of Gradient Descent
 
         # Automatically uses Categorical Accuracy.
         # See here: https://stackoverflow.com/questions/55828344/how-does-tensorflow-calculate-the-accuracy-of-model
@@ -102,6 +185,9 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
         max_epochs=max_epochs,
         batch_size=batch_size
     )
+
+    model.save(f'./saved_models/{model_name}')
+    # keras.models.load_model("my_model.keras")
 
     """
         ---------------- Show Results -----------------

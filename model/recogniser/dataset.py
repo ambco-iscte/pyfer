@@ -23,6 +23,21 @@ def parse(pixel_data: str, shape: (int, int)) -> np.ndarray:
     return cv.cvtColor(np.asarray(pixels, dtype=np.uint8).reshape(shape), cv.COLOR_GRAY2RGB)
 
 
+def parse_greyscale(pixel_data: str, shape: (int, int)) -> np.ndarray:
+    """
+    Parses a FER-2013-formatted pixel data string to a Grayscale image.
+    :param pixel_data: Pixel data; Space-separated pixel luminance values in row-major form.
+    :param shape: The desired image shape.
+    :return: A grayscale image of the desired shape.
+    """
+
+    pixels: list[int] = []
+    for lum in pixel_data.split():
+        pixels.append(int(lum))
+    image = np.array(pixels * 255, dtype=np.uint8).reshape(shape)
+    return image
+
+
 def write(images: list[(np.ndarray, str)], folder: str):
     """
     Writes a list of emotion-annotated images into a folder.

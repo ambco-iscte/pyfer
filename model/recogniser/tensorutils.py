@@ -33,7 +33,7 @@ def visualize(width, height, data):
             ax[i, j].imshow(data[i * height + j], cmap=plt.get_cmap('gray'))
             ax[i, j].get_xaxis().set_visible(False)
             ax[i, j].get_yaxis().set_visible(False)
-    fig.canvas.manager.set_window_title('Desafio 3 - Grupo 02 - Visualização do Input')
+    fig.canvas.manager.set_window_title('Pyfer - Input images')
     plt.suptitle(f'First {width * height} Training Samples')
     plt.tight_layout()
 
