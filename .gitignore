@@ -1,3 +1,5 @@
 /model/recogniser/fer2013.csv
 /model/detector/datasets/
 /model/recogniser/images/
+/model/recogniser/models/
+/model/recogniser/saved_models/
