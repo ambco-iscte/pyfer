@@ -26,14 +26,15 @@ def encode(item: str, mapping: dict[int, str]) -> list[int]:
 
 # Displays a (width * height) grid of plots, each showcasing one element from the provided data.
 # Useful since we're using images and this allows us to visualize a bunch of them in a single, neat plot. :)
-def visualize(width, height, data):
+def visualize(width: int, height: int, x, y, decoding: dict[int, str]):
     fig, ax = plt.subplots(height, width)
     for i in range(height):
         for j in range(width):
-            ax[i, j].imshow(data[i * height + j], cmap=plt.get_cmap('gray'))
+            ax[i, j].imshow(x[i * height + j], cmap=plt.get_cmap('gray'))
+            ax[i, j].set_title(decoding[np.argmax(y[i * height + j])])
             ax[i, j].get_xaxis().set_visible(False)
             ax[i, j].get_yaxis().set_visible(False)
-    fig.canvas.manager.set_window_title('Pyfer - Input images')
+    fig.canvas.manager.set_window_title('PyFER - Input Images')
     plt.suptitle(f'First {width * height} Training Samples')
     plt.tight_layout()
 

@@ -8,13 +8,10 @@ import tensorflow as tf
 
 import yaml
 from keras import layers
-from keras.src.applications import MobileNetV3Small, ResNet50V2
+from keras.src.applications import ResNet50V2
 from keras.src.callbacks import EarlyStopping
-from sklearn.model_selection import train_test_split
 
-from keras.applications.mobilenet import MobileNet
-
-from model.recogniser.dataset import load
+from model.recogniser.fer.dataset import load
 from model.recogniser.tensorutils import plot_metric, plot_confusion_matrix, full_evaluate, visualize
 
 matplotlib.use('TkAgg')
@@ -26,10 +23,20 @@ tf.get_logger().setLevel('INFO')
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience: int, learning_rate: float = 0.001):
+def run(
+        model_name: str,
+        config: str,
+        max_epochs: int,
+        batch_size: int,
+        patience: int,
+        finetuning: int,
+        learning_rate: float = 0.001,
+        with_pretrained_model: bool = True
+):
     # Get data
     x_train, x_val, x_test, y_train, y_val, y_test = load(
-        'fer2013.csv',
+        'fer/fer2013.csv',
+        'fer/fer2013new.csv',
         config,
         0.8,
         0.1
@@ -38,16 +45,18 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
     x_val, y_val = np.array(x_val), np.array(y_val)
     x_test, y_test = np.array(x_test), np.array(y_test)
 
+    # Get configuration
+    config = yaml.load(open(config), yaml.CLoader)
+    emotions = config['emotions']
+
     # Visualize a few images from the original training set
-    visualize(7, 7, x_train)
+    visualize(5, 5, x_train, y_train, emotions)
 
     # Get image width and height
     print(x_train[0].shape)
     img_width, img_height, _ = x_train[0].shape
 
     # Automatically collect labels and calculate the number of classes
-    config = yaml.load(open(config), yaml.CLoader)
-    emotions = config['emotions']
     labels = emotions.values()
     num_classes = len(labels)
     print(f"\nUsing {num_classes} classes:\n\t" + '\n\t'.join(labels))
@@ -61,13 +70,12 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
     print(f'Test data shape         = {x_test.shape}')
     print(f'Test labels shape       = {y_test.shape}\n')
 
-    with_pretrained_model = False
     if with_pretrained_model:
         # pretrained_model = MobileNetV3Small(input_shape=(48, 48, 3), include_top=False)
         convolutional_model = ResNet50V2(input_shape=(48, 48, 3), include_top=False)
         convolutional_model.trainable = False
 
-        for layer in convolutional_model.layers[-3:]:
+        for layer in convolutional_model.layers[-finetuning:]:
             layer.trainable = True
     else:
         convolutional_model = tf.keras.Sequential([
@@ -155,8 +163,6 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
         layers.Dropout(0.2),
 
         layers.Dense(num_classes, activation='softmax')
-
-        # TODO: figure out a model (everything we've tried so far sucks)
     ], name=model_name)
 
     model.compile(
@@ -187,7 +193,6 @@ def run(model_name: str, config: str, max_epochs: int, batch_size: int, patience
     )
 
     model.save(f'./saved_models/{model_name}')
-    # keras.models.load_model("my_model.keras")
 
     """
         ---------------- Show Results -----------------
@@ -235,7 +240,15 @@ def main():
     batch_size = 100
     patience = 10
 
-    run("CustomCNN", 'config.yaml', epochs, batch_size, patience)
+    run(
+        "with_pretraining",
+        'fer/config.yaml',
+        max_epochs=epochs,
+        batch_size=batch_size,
+        patience=patience,
+        finetuning=6,
+        with_pretrained_model=True
+    )
     plt.show()
 
 

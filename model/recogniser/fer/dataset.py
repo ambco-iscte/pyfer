@@ -53,6 +53,7 @@ def write(images: list[(np.ndarray, str)], folder: str):
 
 def load(
         csv: str,
+        csv_extended: str,
         config: str,
         train_split: float,
         val_split: float,
@@ -60,7 +61,8 @@ def load(
 ) -> (list[np.ndarray], list[np.ndarray], list[np.ndarray], list[str], list[str], list[str]):
     """
     Loads the FER-2013 dataset from a CSV file.
-    :param csv: The path to the CSV file containing image data.
+    :param csv: The path to the CSV file containing FER image data.
+    :param csv_extended: The path to the CSV file containing FER+ image data.
     :param config: A YAML file describing the training, validation, and testing dataset folders, as well as mapping each emotion class ID to its name.
     :param train_split: The % (0-1) of data to use for the training set.
     :param val_split: The % (0-1) of testing data (after splitting training data) to use for the validation set.
@@ -68,6 +70,8 @@ def load(
     :return: X_train, X_val, X_test, y_train, y_val, y_test
     """
     fer: pd.DataFrame = pd.read_csv(csv)
+    fer_plus: pd.DataFrame = pd.read_csv(csv_extended)
+
     config = yaml.load(open(config), yaml.CLoader)
     emotions = config['emotions']
 
@@ -75,7 +79,10 @@ def load(
     images: list[(np.ndarray, str)] = []
     for (index, row) in fer.iterrows():
         image = parse(row.pixels, (48, 48, 1))
-        emotion = emotions[row.emotion]
+
+        fer_plus_votes = fer_plus.iloc[index, -10:].tolist()
+        emotion = emotions[np.argmax(fer_plus_votes)]
+
         images.append((image, emotion))
 
     assert 0 <= train_split <= 1
