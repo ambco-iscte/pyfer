@@ -1,5 +1,7 @@
 import os
 import shutil
+import matplotlib.pyplot as plt
+
 from random import shuffle
 
 import cv2 as cv
@@ -57,16 +59,19 @@ def load(
         config: str,
         train_split: float,
         val_split: float,
-        output: str = None
+        output: str = None,
+        plot_balance: bool = False
 ) -> (list[np.ndarray], list[np.ndarray], list[np.ndarray], list[str], list[str], list[str]):
     """
     Loads the FER-2013 dataset from a CSV file.
     :param csv: The path to the CSV file containing FER image data.
     :param csv_extended: The path to the CSV file containing FER+ image data.
-    :param config: A YAML file describing the training, validation, and testing dataset folders, as well as mapping each emotion class ID to its name.
+    :param config: A YAML file describing the training, validation, and testing dataset folders, as well as mapping
+        each emotion class ID to its name.
     :param train_split: The % (0-1) of data to use for the training set.
     :param val_split: The % (0-1) of testing data (after splitting training data) to use for the validation set.
     :param output: Optional; if specified, images are saved to their folders as given in the configuration file.
+    :param plot_balance: Optional; if True, bar plot of category distribution is shown.
     :return: X_train, X_val, X_test, y_train, y_val, y_test
     """
     fer: pd.DataFrame = pd.read_csv(csv)
@@ -90,6 +95,22 @@ def load(
 
     # Shuffle for randomness in train-val-test splitting
     shuffle(images)
+
+    # Check dataset balance
+    if plot_balance:
+        value_counts = {
+            category: len([1 for (_, emotion) in images if emotion == category])
+            for category in emotions.values()
+        }
+        plt.title('Emotion Distribution for FER+ Dataset')
+        x = list(value_counts.keys())
+        y = list(value_counts.values())
+        plt.bar(x, y, color='#546f7c')
+        plt.xticks(fontsize=20)
+        frame = plt.gca()
+        frame.axes.yaxis.set_visible(False)
+        for i in range(len(x)):
+            plt.text(i, y[i] + 80, y[i], fontsize=20, ha='center')
 
     # Get splitting indices
     train_split_index = int(len(images) * train_split)
@@ -122,4 +143,13 @@ def load(
 
 
 if __name__ == '__main__':
-    load('fer2013.csv', 'config.yaml', 0.8, 0.1, 'images')
+    load(
+        'fer2013.csv',
+        'fer2013new.csv',
+        'config.yaml',
+        0.8,
+        0.1,
+        plot_balance=True
+    )
+    plt.tight_layout()
+    plt.show()

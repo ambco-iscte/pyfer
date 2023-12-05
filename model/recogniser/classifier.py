@@ -11,7 +11,7 @@ from keras import layers
 from keras.src.applications import ResNet50V2
 from keras.src.callbacks import EarlyStopping
 
-from model.recogniser.fer.dataset import load
+from model.recogniser.fer.dataset import load as load_fer
 from model.recogniser.tensorutils import plot_metric, plot_confusion_matrix, full_evaluate, visualize
 
 matplotlib.use('TkAgg')
@@ -23,41 +23,44 @@ tf.get_logger().setLevel('INFO')
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def run(
-        model_name: str,
-        config: str,
-        max_epochs: int,
-        batch_size: int,
-        patience: int,
+def execute(
+        x_train: np.ndarray,
+        y_train: np.ndarray,
+        x_val: np.ndarray,
+        y_val: np.ndarray,
+        x_test: np.ndarray,
+        y_test: np.ndarray,
+        labels: list[str],
+        with_pretrained_model: bool,
+        img_width: int,
+        img_height: int,
         finetuning: int,
-        learning_rate: float = 0.001,
-        with_pretrained_model: bool = True
+        patience: int,
+        model_name: str,
+        learning_rate: float,
+        max_epochs: int,
+        batch_size: int
 ):
-    # Get data
-    x_train, x_val, x_test, y_train, y_val, y_test = load(
-        'fer/fer2013.csv',
-        'fer/fer2013new.csv',
-        config,
-        0.8,
-        0.1
-    )
-    x_train, y_train = np.array(x_train), np.array(y_train)
-    x_val, y_val = np.array(x_val), np.array(y_val)
-    x_test, y_test = np.array(x_test), np.array(y_test)
+    """
 
-    # Get configuration
-    config = yaml.load(open(config), yaml.CLoader)
-    emotions = config['emotions']
-
-    # Visualize a few images from the original training set
-    visualize(5, 5, x_train, y_train, emotions)
-
-    # Get image width and height
-    print(x_train[0].shape)
-    img_width, img_height, _ = x_train[0].shape
-
-    # Automatically collect labels and calculate the number of classes
-    labels = emotions.values()
+    :param x_train:
+    :param y_train:
+    :param x_val:
+    :param y_val:
+    :param x_test:
+    :param y_test:
+    :param labels: List of unique target labels.
+    :param with_pretrained_model: True if transfer learning from ResNet50V2 should be used; False, otherwise.
+    :param img_width: Input image width.
+    :param img_height: Input image height.
+    :param finetuning: Amount of pretrained model layers to finetune; Only applicable if with_pretrained_model is True.
+    :param patience:
+    :param model_name:
+    :param learning_rate:
+    :param max_epochs:
+    :param batch_size:
+    :return:
+    """
     num_classes = len(labels)
     print(f"\nUsing {num_classes} classes:\n\t" + '\n\t'.join(labels))
 
@@ -71,8 +74,7 @@ def run(
     print(f'Test labels shape       = {y_test.shape}\n')
 
     if with_pretrained_model:
-        # pretrained_model = MobileNetV3Small(input_shape=(48, 48, 3), include_top=False)
-        convolutional_model = ResNet50V2(input_shape=(48, 48, 3), include_top=False)
+        convolutional_model = ResNet50V2(input_shape=(img_width, img_height, 3), include_top=False)
         convolutional_model.trainable = False
 
         for layer in convolutional_model.layers[-finetuning:]:
@@ -235,22 +237,59 @@ def run(
     plt.tight_layout()
 
 
-def main():
-    epochs = 100
-    batch_size = 100
-    patience = 10
+def fer():
+    # Configuration file
+    config = 'fer/config.yaml'
 
-    run(
-        "with_pretraining",
-        'fer/config.yaml',
-        max_epochs=epochs,
-        batch_size=batch_size,
-        patience=patience,
+    # Get data
+    x_train, x_val, x_test, y_train, y_val, y_test = load_fer(
+        'fer/fer2013.csv',
+        'fer/fer2013new.csv',
+        config,
+        0.8,
+        0.1
+    )
+    x_train, y_train = np.array(x_train), np.array(y_train)
+    x_val, y_val = np.array(x_val), np.array(y_val)
+    x_test, y_test = np.array(x_test), np.array(y_test)
+
+    # Get configuration
+    config = yaml.load(open(config), yaml.CLoader)
+    emotions = config['emotions']
+
+    # Visualize a few images from the original training set
+    visualize(5, 5, x_train, y_train, emotions)
+
+    # Get image width and height
+    print(x_train[0].shape)
+    img_width, img_height, _ = x_train[0].shape
+
+    # Execute model
+    execute(
+        x_train,
+        y_train,
+        x_val,
+        y_val,
+        x_test,
+        y_test,
+        labels=emotions.values(),
+        with_pretrained_model=True,
+        img_width=img_width,
+        img_height=img_height,
         finetuning=6,
-        with_pretrained_model=True
+        patience=10,
+        model_name='WithTransferLearningFromResNet50V2',
+        learning_rate=0.001,
+        max_epochs=100,
+        batch_size=100
     )
     plt.show()
 
 
+def affectnet():
+    pass  # TODO
+
+
 if __name__ == "__main__":
-    main()
+    fer()
+    # affectnet()

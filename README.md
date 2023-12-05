@@ -18,11 +18,6 @@ programme at [Iscte-IUL](https://www.iscte-iul.pt/).
 
 <br>
 
-## Installation
-
-
-<br>
-
 ## How to Use
 
 
