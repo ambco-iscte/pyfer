@@ -61,7 +61,7 @@ def load(
         val_split: float,
         output: str = None,
         plot_balance: bool = False
-) -> (list[np.ndarray], list[np.ndarray], list[np.ndarray], list[str], list[str], list[str]):
+) -> (list[np.ndarray], list[np.ndarray], list[np.ndarray], list[list[int]], list[list[int]], list[list[int]]):
     """
     Loads the FER-2013 dataset from a CSV file.
     :param csv: The path to the CSV file containing FER image data.

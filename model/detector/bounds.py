@@ -7,11 +7,6 @@ from xml.etree import ElementTree
 from ultralytics.engine.results import Results
 
 
-# PyFER - Group 02
-# Afonso Caniço     92494
-# Samuel Correia    92619
-
-
 class BoundingBox:
     """
     Class representing a bounding box for an object.

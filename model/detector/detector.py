@@ -1,3 +1,5 @@
+import numpy as np
+
 from ultralytics import YOLO
 from ultralytics.engine.model import Model
 from model.detector.bounds import BoundingBox
@@ -11,7 +13,9 @@ class FaceDetector:
     def train(self, config: str, epochs: int = 100, patience: int = 30, output: str = "yolov8-face-detector"):
         return self.model.train(data=config, epochs=epochs, patience=patience)
 
-    def detect(self, image: str) -> list[BoundingBox]:
+    # https://docs.ultralytics.com/modes/predict/#inference-sources
+    # HWC format with BGR channels uint8 (0-255).
+    def detect(self, image: str | np.ndarray) -> list[BoundingBox]:
         return BoundingBox.wrap(self.model(image)[0])
 
 

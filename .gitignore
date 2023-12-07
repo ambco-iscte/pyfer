@@ -3,6 +3,5 @@
 /model/recogniser/fer/images/
 /model/recogniser/models/
 /model/recogniser/saved_models/
-/model/recogniser/affectnet/train_set
-/model/recogniser/affectnet/val_set
+/model/recogniser/affectnet/data
 /model/recogniser/affectnet/AffectNet8Labels_Documentation_OneDrive_March2021.pdf

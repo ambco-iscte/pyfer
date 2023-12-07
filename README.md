@@ -29,7 +29,14 @@ programme at [Iscte-IUL](https://www.iscte-iul.pt/).
 <br>
 
 ## Acknowledgements
+We kindly thank Dr. Mohammad H. Mahoor, Professor of Electrical and Computer Engineering at the University of Denver, 
+and M. Mehdi Hosseini, Ph.D. Student of Electrical and Computer Engineering at the University of Denver, for providing 
+us with the [AffectNet](http://mohammadmahoor.com/affectnet/) dataset to aid in the development of our facial 
+expression classification model.
 
+We kindly thank Dr. Jeffrey Cohn and Megan Ritter from the University of Pittsburgh for providing us with the 
+[Cohn-Kanade dataset](https://ieeexplore.ieee.org/document/5543262) and its extended version to aid in the development 
+of our facial expression classification model. 
 
 <br>
 
