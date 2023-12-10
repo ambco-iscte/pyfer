@@ -13,7 +13,7 @@ def encode(item: str, mapping: dict[int, str]) -> list[int]:
     """
     Applies one-hot encoding to item as pertaining to a dictionary mapping each index to a class.
     :param item: The class to one-hot encode.
-    :param mapping: Dictionary mapping each index to a class
+    :param mapping: Dictionary mapping each index to a class.
     :return: A one-hot-encoded representation of the item.
     """
     default = [0] * len(mapping.keys())
@@ -22,6 +22,16 @@ def encode(item: str, mapping: dict[int, str]) -> list[int]:
             default[i] = 1
             return default
     return default
+
+
+def decode(item: list[int], mapping: dict[int, str]) -> str:
+    """
+    Decodes a one-hot-encoded element according to a given dictionary mapping each index to a class.
+    :param item: One-hot-encoded element.
+    :param mapping: Dictionary mapping each index to a class.
+    :return:
+    """
+    return mapping[np.argmax(item)]
 
 
 # Displays a (width * height) grid of plots, each showcasing one element from the provided data.

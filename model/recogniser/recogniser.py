@@ -197,7 +197,7 @@ def execute(
         batch_size=batch_size
     )
 
-    model.save(f'./saved_models/{model_name}', save_format='keras')
+    model.save(f'./saved_models/{model_name}')
 
     """
         ---------------- Show Results -----------------
@@ -240,7 +240,7 @@ def execute(
     plt.tight_layout()
 
 
-def fer():
+def fer(with_pretrained_model: bool):
     # Configuration file
     config = 'fer/config.yaml'
 
@@ -276,7 +276,7 @@ def fer():
         x_test,
         y_test,
         labels=emotions.values(),
-        with_pretrained_model=True,
+        with_pretrained_model=with_pretrained_model,
         img_width=img_width,
         img_height=img_height,
         finetuning=6,
@@ -288,7 +288,7 @@ def fer():
     )
 
 
-def affectnet():
+def affectnet(with_pretrained_model: bool, name: str):
     # Configuration file
     config = 'affectnet/config.yaml'
 
@@ -298,6 +298,7 @@ def affectnet():
     x_train, x_val, x_test, y_train, y_val, y_test = load_affectnet(
         config,
         'affectnet/data',
+        shape=(48, 48),
         balanced=True
     )
     print(f'Done! Took {time.time() - start_time} seconds.\n')
@@ -326,19 +327,19 @@ def affectnet():
         x_test,
         y_test,
         labels=emotions.values(),
-        with_pretrained_model=True,
+        with_pretrained_model=with_pretrained_model,
         img_width=img_width,
         img_height=img_height,
         finetuning=6,
         patience=10,
-        model_name='AffectNetWithTransferLearningFromResNet50V2',
+        model_name=name,
         learning_rate=0.001,
         max_epochs=100,
-        batch_size=250
+        batch_size=500
     )
 
 
 if __name__ == "__main__":
-    # fer()
-    affectnet()
+    # fer(False)
+    affectnet(False, 'AffectNetWithCustomCNN')
     plt.show()

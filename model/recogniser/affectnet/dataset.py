@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 from collections import defaultdict
 
-from model.recogniser.tensorutils import encode
+from model.recogniser.tensorutils import encode, decode
 
 
 def prepare(config: str, split: float):
@@ -43,6 +43,7 @@ def prepare(config: str, split: float):
 def load_affectnet(
         config: str,
         data: str,
+        shape: (int, int) = (224, 224),
         balanced: bool = False
 ) -> (list[np.ndarray], list[np.ndarray], list[np.ndarray], list[list[int]], list[list[int]], list[list[int]]):
     config = yaml.load(open(config), yaml.CLoader)
@@ -63,7 +64,10 @@ def load_affectnet(
                 em = emotions[int(np.load(annotation))]
             except FileNotFoundError:
                 continue
-            d[em].append(img)
+            if shape != img.shape:
+                d[em].append(cv.resize(img, shape))
+            else:
+                d[em].append(img)
 
         return d
 
@@ -83,7 +87,7 @@ def load_affectnet(
     y_test = []
 
     if balanced:
-        smallest = min([len(x) for x in train.values()])
+        smallest = min(len(x) for x in train.values())
         for emotion in emotions.values():
             train[emotion] = random.sample(train[emotion], smallest)
 
@@ -109,4 +113,36 @@ def load_affectnet(
 
 
 if __name__ == '__main__':
-    prepare('config.yaml', 0.1)
+    # prepare('config.yaml', 0.1)
+
+    print('Loading original AffectNet dataset...')
+    x_train, x_val, x_test, y_train, y_val, y_test = load_affectnet(
+        'config.yaml',
+        'data',
+        (224, 224),
+        balanced=True
+    )
+
+    config = yaml.load(open('config.yaml'), yaml.CLoader)
+    emotions: dict[int, str] = config['emotions']
+
+    print('Calculating and plotting emotion distribution...')
+
+    value_counts: dict[str, int] = defaultdict(int)
+    for label in y_train:
+        value_counts[decode(label, emotions)] += 1
+
+    plt.title('Emotion Distribution for Balanced AffectNet Dataset Sample')
+    x = list(value_counts.keys())
+    y = list(value_counts.values())
+    plt.bar(x, y, color='#546f7c')
+    plt.xticks(fontsize=20)
+    frame = plt.gca()
+    frame.axes.yaxis.set_visible(False)
+    for i in range(len(x)):
+        plt.text(i, y[i] + 80, str(y[i]), fontsize=20, ha='center')
+
+    print('Done!')
+
+    plt.tight_layout()
+    plt.show()

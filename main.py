@@ -3,7 +3,7 @@ import numpy as np
 
 from ultralytics import YOLO
 
-from model.detector.bounds import BoundingBox, annotated
+from model.detector.bounds import annotated
 from model.detector.detector import FaceDetector
 from model.pyfer import PyFER
 from model.recogniser.classifier import EmotionClassifier
@@ -21,13 +21,13 @@ def main():
     # Instantiate PyFER model
     pyfer = PyFER(detector, classifier)
 
+    # Load image
     image: np.ndarray = cv.imread('testing.png')
-
     cv.imshow('Original Image', image)
 
+    # Detect and classify faces
     detections = pyfer.apply(image)
     image_processed = annotated(image, detections)
-
     cv.imshow('PyFER Image', image_processed)
 
     cv.waitKey(0)
