@@ -27,6 +27,11 @@ class BoundingBox:
 
     @staticmethod
     def wrap(results: Results) -> list:
+        """
+        Converts a YOLOv8 Results object into a friendlier list of BoundingBox objects. :)
+        :param results: Results object obtained by applying the YOLOv8 model to an image.
+        :return: List of bounding boxes for objects found by the YOLOv8 model.
+        """
         lst = []
 
         boxes = results.boxes

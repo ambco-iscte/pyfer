@@ -197,7 +197,7 @@ def execute(
         batch_size=batch_size
     )
 
-    model.save(f'./saved_models/{model_name}')
+    model.save(f'./saved_models/{model_name}.keras', save_format='keras')
 
     """
         ---------------- Show Results -----------------

@@ -19,11 +19,38 @@ programme at [Iscte-IUL](https://www.iscte-iul.pt/).
 <br>
 
 ## How to Use
+### Using Pre-Trained Models
 
+### Defining your own Models
+#### Object Detection
+
+
+#### Facial Expression Classification
 
 <br>
 
-## Examples
+## Example
+The following is an example of applying PyFER to a single image.
+```python
+# Load detector and classifier models
+detector = FaceDetector(YOLO('path/to/best.pt'))
+classifier = EmotionClassifier(load_model('path/to/tensorflow/model'))
+
+# Instantiate PyFER model
+pyfer = PyFER(detector, classifier)
+
+# Load image
+image = cv.imread('path/to/image.png')
+cv.imshow('Original Image', image)
+
+# Detect and classify faces
+detections = pyfer.apply(image)
+image_processed = annotated(image, detections)
+cv.imshow('PyFER Image', image_processed)
+
+cv.waitKey(0)
+cv.destroyAllWindows()
+```
 
 
 <br>
@@ -31,12 +58,13 @@ programme at [Iscte-IUL](https://www.iscte-iul.pt/).
 ## Acknowledgements
 We kindly thank Dr. Mohammad H. Mahoor, Professor of Electrical and Computer Engineering at the University of Denver, 
 and M. Mehdi Hosseini, Ph.D. Student of Electrical and Computer Engineering at the University of Denver, for providing 
-us with the [AffectNet](http://mohammadmahoor.com/affectnet/) dataset to aid in the development of our facial 
+us with the [AffectNet dataset](http://mohammadmahoor.com/affectnet/) to aid in the development of our facial 
 expression classification model.
 
 We kindly thank Dr. Jeffrey Cohn and Megan Ritter from the University of Pittsburgh for providing us with the 
 [Cohn-Kanade dataset](https://ieeexplore.ieee.org/document/5543262) and its extended version to aid in the development 
-of our facial expression classification model. 
+of our facial expression classification model. While we ended up not utilizing this dataset
+to train our model, we appreciate being provided with it!
 
 <br>
 

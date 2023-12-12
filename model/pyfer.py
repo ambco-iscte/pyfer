@@ -19,8 +19,9 @@ class PyFER:
 
         # Classify each face
         for box in detected:
-            face = image[box.start[0]:box.start[1], box.end[0]:box.end[1]]
-            box.name = self.classifier.classify(face)
+            face = image[box.start[1]:box.end[1], box.start[0]:box.end[0]]  # [y1:y2, x1:x2]
+            emotion, confidence = self.classifier.classify(face)
+            box.name = f'{emotion} ({round(confidence, 3)})'
             results.append(box)
 
         return results

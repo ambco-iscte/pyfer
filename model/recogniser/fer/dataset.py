@@ -14,7 +14,7 @@ from model.recogniser.tensorutils import encode
 
 def parse(pixel_data: str, shape: (int, int)) -> np.ndarray:
     """
-    Parses a FER-2013-formatted pixel data string to a Grayscale image.
+    Parses a FER-2013-formatted pixel data string to an RGB image.
     :param pixel_data: Pixel data; Space-separated pixel luminance values in row-major form.
     :param shape: The desired image shape.
     :return: A grayscale image of the desired shape.
