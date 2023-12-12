@@ -19,22 +19,99 @@ programme at [Iscte-IUL](https://www.iscte-iul.pt/).
 <br>
 
 ## How to Use
+**PyFER** relies on two separate neural network models to automatically detect and classify
+facial expressions in any given image:
+1. A [FaceDetector](model/detector/detector.py) model;
+2. An [EmotionClassifier](model/recogniser/classifier.py) model.
+
+A **FaceDetector** object requires an [Ultralytics](https://github.com/ultralytics/ultralytics) model
+(these are built on PyTorch) to be created.
+
+An **EmotionClassifier** object, in turn, requires:
+1. A [TensorFlow](https://www.tensorflow.org/) model;
+2. The path to a `yaml` configuration file containing an `emotions` mapping between integers and emotion names.
+
+Ideally, EmotionClassifier would also support PyTorch models to facilitate faster native execution on GPUs.
+However, we ran into a headache-inducing amount of issues when trying to support PyTorch models and, since this library
+was developed for a single university assignment, we decided to stick to the familiarity of Keras instead. :)
+
+Specifically, a PyFER model could be instantiated as follows.
+```python
+# Load detector and classifier models
+detector = FaceDetector(ultralytics_model)
+classifier = EmotionClassifier(
+    classifier=tensorflow_model,
+    config_file_path='path/to/classifier/config/file.yaml'
+)
+
+# Instantiate PyFER model
+pyfer = PyFER(detector, classifier)
+```
+
+And the following is an example of an EmotionClassifier configuration file.
+```yaml
+emotions:
+  0: 'Neutral'
+  1: 'Happiness'
+  2: 'Surprise'
+  3: 'Sadness'
+  4: 'Anger'
+  5: 'Disgust'
+  6: 'Fear'
+  7: 'Contempt'
+  8: 'Unknown'
+  9: 'NF'
+```
+
 ### Using Pre-Trained Models
+If you download this repository, you'll find two ready-to-use pre-trained models, one face detector and one
+facial expression classifier. These are stored in the [trained-models](trained-models) folder.
 
-### Defining your own Models
-#### Object Detection
+These models can be readily used by simply specifying their paths when instantiating the PyFER models.
+```python
+detector = FaceDetector(YOLO('trained-models/detector.pt'))
+classifier = EmotionClassifier(
+    classifier=load_model('trained-models/classifier'),
+    config_file_path='trained_models/classifier_config.yaml'
+)
 
+pyfer = PyFER(detector, classifier)
+```
 
-#### Facial Expression Classification
+### Creating your own Models
+**Object Detection**: 
+- Please refer to the [Ultralytics documentation](https://docs.ultralytics.com/modes). :)
+- Make sure to [train](https://docs.ultralytics.com/modes/train/) your model to only detect faces!
+- Check out the [detector.py](model/detector/detector.py) file to see how we did this.
+
+**Facial Expression Classification**:
+- Construct any TensorFlow/Keras model that receives an image as input and, using Softmax or any similar activation at the output layer, outputs the probabilities of that image belonging to each given facial expression emotion class;
+- Assign an integer value (preferably 0-N) to each of your considered emotions, and one-hot encode target labels using that mapping.
+- Check out the [recogniser.py](model/recogniser/recogniser.py) file to see how we did this.
 
 <br>
 
 ## Example
-The following is an example of applying PyFER to a single image.
+### Applying PyFER to a single image
+The following is an example of applying PyFER to a single image. Try running [main.py](main.py) on your machine!
 ```python
+import cv2 as cv
+
+from ultralytics import YOLO
+
+from model.detector.bounds import annotated
+from model.detector.detector import FaceDetector
+from model.pyfer import PyFER
+from model.recogniser.classifier import EmotionClassifier
+from keras.models import load_model
+
+
 # Load detector and classifier models
-detector = FaceDetector(YOLO('path/to/best.pt'))
-classifier = EmotionClassifier(load_model('path/to/tensorflow/model'))
+detector = FaceDetector(YOLO('trained-models/detector.pt'))
+classifier = EmotionClassifier(
+    classifier=load_model('trained-models/classifier'),
+    config_file_path='trained_models/classifier_config.yaml'
+)
 
 # Instantiate PyFER model
 pyfer = PyFER(detector, classifier)
@@ -49,6 +126,62 @@ image_processed = annotated(image, detections)
 cv.imshow('PyFER Image', image_processed)
 
 cv.waitKey(0)
+cv.destroyAllWindows()
+```
+
+### Applying PyFER to webcam feed
+If the models making up PyFER can be executed on the GPU and their execution is fast enough,
+PyFER can be applied to the frames of a webcam feed to automatically detect and classify the emotions
+of people in that feed in close to real-time!
+
+The following is an example of this. Try running [webcam.py](webcam.py) on your machine!
+```python
+import cv2 as cv
+import torch
+from ultralytics import YOLO
+
+from model.detector.bounds import annotated
+from model.detector.detector import FaceDetector
+from model.pyfer import PyFER
+from model.recogniser.classifier import EmotionClassifier
+from keras.models import load_model
+
+
+# Set PyTorch to use GPU (big speedup for YOLO if CUDA is installed)
+torch.cuda.set_device(0)
+
+# Load detector and classifier models
+detector = FaceDetector(YOLO('trained-models/detector.pt'))
+classifier = EmotionClassifier(
+    classifier=load_model('trained-models/classifier'),
+    config_file_path='trained_models/classifier_config.yaml'
+)
+
+# Instantiate PyFER model
+pyfer = PyFER(detector, classifier)
+
+# Start video capture
+video = cv.VideoCapture(0)  # Might need to adjust this number
+
+while(True):
+    if not video.isOpened():
+        break
+
+    # Read frame from webcam video capture
+    ret, frame = video.read()
+
+    # Apply PyFER to this frame
+    detections = pyfer.apply(frame)
+    frame_processed = annotated(frame, detections)
+
+    # Display the annotated frame
+    cv.imshow('PyFER Webcam Capture', frame_processed)
+
+    # Quit when user presses the Q key
+    if cv.waitKey(1) and 0xFF == ord('q'):
+        break
+
+video.release()
 cv.destroyAllWindows()
 ```
 

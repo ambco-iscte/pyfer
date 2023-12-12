@@ -113,11 +113,9 @@ def load_affectnet(
 
 
 if __name__ == '__main__':
-    # prepare('config.yaml', 0.1)
-
     print('Loading original AffectNet dataset...')
     x_train, x_val, x_test, y_train, y_val, y_test = load_affectnet(
-        'config.yaml',
+        'classifier_config.yaml',
         'data',
         (224, 224),
         balanced=True

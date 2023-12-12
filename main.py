@@ -14,6 +14,7 @@ from keras.models import load_model
 
 DETECTOR = 'trained-models/detector.pt'
 CLASSIFIER = 'trained-models/classifier'
+CLASSIFIER_CONFIG = 'trained_models/classifier_config.yaml'
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
 
     # Load detector and classifier models
     detector = FaceDetector(YOLO(DETECTOR))
-    classifier = EmotionClassifier(load_model(CLASSIFIER), 'model/recogniser/fer/config.yaml')
+    classifier = EmotionClassifier(load_model(CLASSIFIER), CLASSIFIER_CONFIG)
 
     # Instantiate PyFER model
     pyfer = PyFER(detector, classifier)
