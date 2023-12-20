@@ -1,8 +1,9 @@
-/model/recogniser/fer/fer2013.csv
+/model/classifier/training/fer/fer2013.csv
 /model/detector/datasets/
-/model/recogniser/fer/images/
-/model/recogniser/models/
-/model/recogniser/saved_models/
-/model/recogniser/affectnet/data
-/model/recogniser/affectnet/AffectNet8Labels_Documentation_OneDrive_March2021.pdf
+/model/classifier/training/fer/images/
+/model/classifier/training/models/
+/model/classifier/training/models/legacy/
+/model/classifier/training/affectnet/data
+/model/classifier/training/affectnet/AffectNet8Labels_Documentation_OneDrive_March2021.pdf
 /.idea
+/model/classifier/training/fer/fer2013new.csv

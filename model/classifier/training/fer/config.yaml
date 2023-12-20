@@ -1,0 +1,15 @@
+train: 'train'
+val: 'val'
+test: 'test'
+
+emotions:
+  0: 'Neutral'
+  1: 'Happiness'
+  2: 'Surprise'
+  3: 'Sadness'
+  4: 'Anger'
+  5: 'Disgust'
+  6: 'Fear'
+  7: 'Contempt'
+  #8: 'Unknown'
+  #9: 'NF'

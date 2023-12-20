@@ -2,7 +2,7 @@ import numpy as np
 
 from model.detector.bounds import BoundingBox
 from model.detector.detector import FaceDetector
-from model.recogniser.classifier import EmotionClassifier
+from model.classifier.classifier import EmotionClassifier
 
 
 class PyFER:

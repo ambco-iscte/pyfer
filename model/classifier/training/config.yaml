@@ -1,0 +1,13 @@
+FER:
+  finetuning: 6
+  patience: 20
+  learning_rate: 0.001
+  max_epochs: 200
+  batch_size: 300
+
+AffectNet:
+  finetuning: 6
+  patience: 15
+  learning_rate: 0.001
+  max_epochs: 100 # Fewer epochs because AffectNet is *slower*
+  batch_size: 3000

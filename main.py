@@ -9,12 +9,12 @@ from ultralytics import YOLO
 from model.detector.bounds import annotated
 from model.detector.detector import FaceDetector
 from model.pyfer import PyFER
-from model.recogniser.classifier import EmotionClassifier
+from model.classifier.classifier import EmotionClassifier
 from keras.models import load_model
 
 DETECTOR = 'trained-models/detector.pt'
-CLASSIFIER = 'trained-models/classifier'
-CLASSIFIER_CONFIG = 'trained_models/classifier_config.yaml'
+CLASSIFIER = 'trained-models/classifier.keras'
+CLASSIFIER_CONFIG = 'trained-models/classifier_config.yaml'
 
 
 def main():
@@ -29,8 +29,7 @@ def main():
     pyfer = PyFER(detector, classifier)
 
     # Load image
-    image: np.ndarray = cv.imread('testing.jpg')
-    # cv.imshow('Original Image', image)
+    image: np.ndarray = cv.cvtColor(cv.imread('testing.jpg'), cv.COLOR_BGR2RGB)
 
     # Detect and classify faces
     print(f'Applying PyFER to image of shape {image.shape}...')
