@@ -3,29 +3,18 @@ import logging
 import os
 from typing import Sequence
 
-import yaml
-
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
-from keras.applications.mobilenet_v2 import preprocess_input as preprocess_mobilenet
-from keras.applications.resnet_v2 import preprocess_input as preprocess_resnet
-
+import yaml
 from keras.src.callbacks import EarlyStopping
 
-from model.classifier.training.builder import build
 from model.classifier.training.affectnet.dataset import load_affectnet
-from model.classifier.training.fer.dataset import load as load_fer
 from model.classifier.training.builder import TransferLearningType
-from model.classifier.training.tensorutils import plot_metric, plot_confusion_matrix, full_evaluate_numpy, visualize, \
+from model.classifier.training.builder import build
+from model.classifier.training.fer.dataset import load as load_fer
+from model.classifier.training.tensorutils import plot_metric, plot_confusion_matrix, full_evaluate_numpy, \
     full_evaluate_tensor, dataset_weights
-
-# Disable TensorFlow warnings
-logging.disable(logging.WARNING)
-logging.disable(logging.INFO)
-tf.get_logger().setLevel('INFO')
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def plot(model_name, labels, history, metric_values, time_value, epochs, conf_matrix):
@@ -244,6 +233,12 @@ if __name__ == "__main__":
         print(f'Using GPU for Keras model training! Yay!')
     os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
 
+    # Disable TensorFlow warnings
+    logging.disable(logging.WARNING)
+    logging.disable(logging.INFO)
+    tf.get_logger().setLevel('INFO')
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
     # Get universal configuration
     cfg = yaml.load(open('config.yaml'), yaml.CLoader)
 
@@ -253,6 +248,6 @@ if __name__ == "__main__":
     #fer(TransferLearningType.NONE, 'FERPlusFromScratch', cfg)
 
     # AffectNet
-    affectnet(TransferLearningType.MOBILENET, 'AffectNetUsingMobileNet', cfg, shape=(128, 128), sample_size=50000)
+    #affectnet(TransferLearningType.MOBILENET, 'AffectNetUsingMobileNet', cfg, shape=(128, 128), sample_size=50000)
     affectnet(TransferLearningType.RESNET, 'AffectNetUsingResNet', cfg, shape=(128, 128), sample_size=50000)
     affectnet(TransferLearningType.NONE, 'AffectNetFromScratch', cfg, shape=(128, 128), sample_size=50000)
