@@ -58,15 +58,17 @@ emotions:
 ```
 
 ### Using Pre-Trained Models
-If you download this repository, you'll find two ready-to-use pre-trained models, one face detector and one
-facial expression classifier. These are stored in the [trained-models](trained-models) folder.
+If you download this repository, you'll find two ready-to-use pre-trained models:
+- One face detection model;
+- Three emotion classifiers (one for AffectNet, two for FER+).
 
-These models can be readily used by simply specifying their paths when instantiating the PyFER models.
+These are stored in the [trained-models](trained-models) folder, along with their configuration files for the classifier models.
+They can be readily used by simply specifying their paths when instantiating the PyFER models.
 ```python
 detector = FaceDetector(YOLO('trained-models/detector.pt'))
 classifier = EmotionClassifier(
-    classifier=load_model('trained-models/classifier'),
-    config_file_path='trained_models/classifier_config.yaml'
+    classifier=load_model('trained-models/fer/FERPlusFromScratch.keras'),
+    config_file_path='trained_models/fer/config.yaml'
 )
 
 pyfer = PyFER(detector, classifier)
@@ -106,21 +108,20 @@ from keras.models import load_model
 # Load detector and classifier models
 detector = FaceDetector(YOLO('trained-models/detector.pt'))
 classifier = EmotionClassifier(
-    classifier=load_model('trained-models/classifier.keras'),
-    config_file_path='trained_models/classifier_config.yaml'
+    classifier=load_model('trained-models/fer/FERPlusFromScratch.keras'),
+    config_file_path='trained_models/fer/config.yaml'
 )
 
 # Instantiate PyFER model
 pyfer = PyFER(detector, classifier)
 
-# Load image
-image = cv.imread('path/to/image.png')
-cv.imshow('Original Image', image)
+# Load image and convert to RGB
+image = cv.cvtColor(cv.imread('path/to/image.png'), cv.COLOR_BGR2RGB)
 
 # Detect and classify faces
 detections = pyfer.apply(image)
 image_processed = annotated(image, detections)
-cv.imshow('PyFER Image', image_processed)
+cv.imshow('PyFER Image', cv.cvtColor(image_processed, cv.COLOR_RGB2BGR))
 
 cv.waitKey(0)
 cv.destroyAllWindows()
@@ -150,8 +151,8 @@ torch.cuda.set_device(0)
 # Load detector and classifier models
 detector = FaceDetector(YOLO('trained-models/detector.pt'))
 classifier = EmotionClassifier(
-    classifier=load_model('trained-models/classifier.keras'),
-    config_file_path='trained_models/classifier_config.yaml'
+    classifier=load_model('trained-models/fer/FERPlusFromScratch.keras'),
+    config_file_path='trained_models/fer/config.yaml'
 )
 
 # Instantiate PyFER model
@@ -166,13 +167,15 @@ while (True):
 
     # Read frame from webcam video capture
     ret, frame = video.read()
+    
+    frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
     # Apply PyFER to this frame
     detections = pyfer.apply(frame)
     frame_processed = annotated(frame, detections)
 
     # Display the annotated frame
-    cv.imshow('PyFER Webcam Capture', frame_processed)
+    cv.imshow('PyFER Webcam Capture', cv.cvtColor(frame_processed, cv.COLOR_RGB2BGR))
 
     # Quit when user presses the Q key
     if cv.waitKey(1) and 0xFF == ord('q'):

@@ -1,9 +1,7 @@
+from typing import Sequence
+
 import cv2 as cv
 import numpy as np
-
-from typing import Sequence
-from xml.etree import ElementTree
-
 from ultralytics.engine.results import Results
 
 
@@ -53,7 +51,7 @@ def annotated(
         image: np.ndarray | str,
         bounding_boxes: list[BoundingBox],
         include_title: bool = True,
-        colour: Sequence[int] = (0, 0, 255)
+        colour: Sequence[int] = (255, 0, 0)
 ) -> np.ndarray:
     """
     Annotates an image with the bounding boxes of the objects present in the image.
