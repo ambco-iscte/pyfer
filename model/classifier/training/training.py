@@ -249,5 +249,5 @@ if __name__ == "__main__":
 
     # AffectNet
     #affectnet(TransferLearningType.MOBILENET, 'AffectNetUsingMobileNet', cfg, shape=(128, 128), sample_size=50000)
-    affectnet(TransferLearningType.RESNET, 'AffectNetUsingResNet', cfg, shape=(128, 128), sample_size=50000)
+    #affectnet(TransferLearningType.RESNET, 'AffectNetUsingResNet', cfg, shape=(128, 128), sample_size=50000)
     affectnet(TransferLearningType.NONE, 'AffectNetFromScratch', cfg, shape=(128, 128), sample_size=50000)
