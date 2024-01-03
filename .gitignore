@@ -7,3 +7,7 @@
 /model/classifier/training/affectnet/AffectNet8Labels_Documentation_OneDrive_March2021.pdf
 /.idea
 /model/classifier/training/fer/fer2013new.csv
+/main.py
+/preprocess.py
+/testing.jpg
+/webcam.py
