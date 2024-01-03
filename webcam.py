@@ -8,10 +8,11 @@ from model.classifier.classifier import EmotionClassifier
 from model.detector.bounds import annotated
 from model.detector.detector import FaceDetector
 from model.pyfer import PyFER
+from preprocess import affectnet
 
 DETECTOR = 'trained-models/detector.pt'
-CLASSIFIER = 'trained-models/fer/FERPlusFromScratch.keras'
-CLASSIFIER_CONFIG = 'trained-models/fer/config.yaml'
+CLASSIFIER = 'model/classifier/training/models/AffectNetFromScratch.keras'
+CLASSIFIER_CONFIG = 'model/classifier/training/affectnet/config.yaml'
 
 
 def main():
@@ -31,7 +32,18 @@ def main():
     print('Done! Starting video capture...')
 
     # Start video capture
-    video = cv.VideoCapture(-1)
+    video = cv.VideoCapture(0)
+
+    # Set video capture properties
+    # Necessary because we're running Python on WSL2, which makes it a major headache to access a USB camera.
+    # If you're running Python natively, try removing these options!
+    video.set(cv.CAP_PROP_FRAME_WIDTH, 320)
+    video.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
+    video.set(cv.CAP_PROP_FPS, 15)
+    video.set(cv.CAP_PROP_FOURCC,  cv.VideoWriter.fourcc('M', 'J', 'P', 'G'))
+
+    if not video.isOpened():
+        raise RuntimeError("Failed to open video capture.")
 
     while(True):
         if not video.isOpened():
@@ -39,12 +51,15 @@ def main():
 
         ret, frame = video.read()
 
-        frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+        try:
+            frame = affectnet(frame)
 
-        detections = pyfer.apply(frame)
-        frame_processed = annotated(frame, detections)
+            detections = pyfer.apply(frame)
+            frame_processed = annotated(frame, detections)
 
-        cv.imshow('PyFER Webcam Capture', cv.cvtColor(frame_processed, cv.COLOR_RGB2BGR))
+            cv.imshow('PyFER Webcam Capture', cv.cvtColor(frame_processed, cv.COLOR_RGB2BGR))
+        except:
+            continue
 
         # Quit when user presses the Q key
         if cv.waitKey(1) and 0xFF == ord('q'):
