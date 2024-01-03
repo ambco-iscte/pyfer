@@ -57,24 +57,16 @@ emotions:
   7: 'Contempt'
 ```
 
-### Using Pre-Trained Models
-If you download this repository, you'll find two ready-to-use pre-trained models:
-- One face detection model;
-- Three emotion classifiers (one for AffectNet, two for FER+).
-
-These are stored in the [trained-models](trained-models) folder, along with their configuration files for the classifier models.
-They can be readily used by simply specifying their paths when instantiating the PyFER models.
+### Using the Pre-Trained Face Detection Model
+If you download this repository, you'll find a ready-to-use YOLOv8-based face detection model stored in the [trained-models](trained-models) 
+folder. It can be used by simply instantiating `FaceDetector` with it as an argument.
 ```python
 detector = FaceDetector(YOLO('trained-models/detector.pt'))
-classifier = EmotionClassifier(
-    classifier=load_model('trained-models/fer/FERPlusFromScratch.keras'),
-    config_file_path='trained_models/fer/config.yaml'
-)
+classifier = ...
 
 pyfer = PyFER(detector, classifier)
 ```
 
-**The pre-trained EmotionClassifier models take input in RGB format, in the range [0-255].**
 
 
 ### Creating your own Models
@@ -85,14 +77,14 @@ pyfer = PyFER(detector, classifier)
 
 **Facial Expression Classification**:
 - Construct any TensorFlow/Keras model that receives an image as input and, using Softmax or any similar activation at the output layer, outputs the probabilities of that image belonging to each given facial expression emotion class;
-- Assign an integer value (preferably 0-N) to each of your considered emotions, and one-hot encode target labels using that mapping.
+- Assign an integer value to each of your considered emotions, and one-hot encode target labels using that mapping.
 - Check out the [training.py](model/classifier/training/training.py) file to see how we did this.
 
 <br>
 
 ## Example
 ### Applying PyFER to a single image
-The following is an example of applying PyFER to a single image. Try running [main.py](main.py) on your machine!
+The following is an example of applying PyFER to a single image.
 
 ```python
 import cv2 as cv
@@ -108,8 +100,8 @@ from keras.models import load_model
 # Load detector and classifier models
 detector = FaceDetector(YOLO('trained-models/detector.pt'))
 classifier = EmotionClassifier(
-    classifier=load_model('trained-models/fer/FERPlusFromScratch.keras'),
-    config_file_path='trained_models/fer/config.yaml'
+    classifier=load_model('path/to/model'),
+    config_file_path='path/to/yaml/config'
 )
 
 # Instantiate PyFER model
@@ -132,7 +124,7 @@ If the models making up PyFER can be executed on the GPU and their execution is 
 PyFER can be applied to the frames of a webcam feed to automatically detect and classify the emotions
 of people in that feed in close to real-time!
 
-The following is an example of this. Try running [webcam.py](webcam.py) on your machine!
+The following is an example of this.
 
 ```python
 import cv2 as cv
@@ -151,8 +143,8 @@ torch.cuda.set_device(0)
 # Load detector and classifier models
 detector = FaceDetector(YOLO('trained-models/detector.pt'))
 classifier = EmotionClassifier(
-    classifier=load_model('trained-models/fer/FERPlusFromScratch.keras'),
-    config_file_path='trained_models/fer/config.yaml'
+    classifier=load_model('path/to/model'),
+    config_file_path='path/to/yaml/config'
 )
 
 # Instantiate PyFER model
