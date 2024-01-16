@@ -2,12 +2,12 @@
 
 <div align="center">
 
-<img align="left" src="resources/PoweredByTensorFlow.png" alt="" style="max-height:3rem"/>
+<img align="left" src="resources/PoweredByTensorFlow.png" alt="" style="height:3rem"/>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="resources/Ultralytics_YOLO_full_white.png">
   <source media="(prefers-color-scheme: light)" srcset="resources/Ultralytics_YOLO_full_blue.png">
-  <img alt="Ultralytics" src="resources/Ultralytics_YOLO_full_blue.png" style="max-height:3rem; margin-left: 1.5rem">
+  <img alt="Ultralytics" src="resources/Ultralytics_YOLO_full_blue.png" style="height:3rem; margin-left: 1.5rem">
 </picture>
 
 </div>
