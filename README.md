@@ -1,3 +1,19 @@
+<br>
+
+<div align="center">
+
+<img align="left" src="resources/PoweredByTensorFlow.png" alt="" style="max-height:3rem"/>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="resources/Ultralytics_YOLO_full_white.png">
+  <source media="(prefers-color-scheme: light)" srcset="resources/Ultralytics_YOLO_full_blue.png">
+  <img alt="Ultralytics" src="resources/Ultralytics_YOLO_full_blue.png" style="max-height:3rem; margin-left: 1.5rem">
+</picture>
+
+</div>
+
+<br>
+
 <div align="center">
 
 # PyFER
@@ -57,7 +73,7 @@ emotions:
   7: 'Contempt'
 ```
 
-### Using the Pre-Trained Face Detection Model
+### Using the Pre-Trained Models
 If you download this repository, you'll find a ready-to-use YOLOv8-based face detection model stored in the [trained-models](trained-models) 
 folder. It can be used by simply instantiating `FaceDetector` with it as an argument.
 ```python
@@ -66,6 +82,18 @@ classifier = ...
 
 pyfer = PyFER(detector, classifier)
 ```
+
+In the same folder you can additionally find 6 (six) pre-trained facial expression emotion classification models,
+along with configuration files for the AffectNet and FER models.
+```python
+from keras.models import load_model
+
+detector = ...
+classifier = classifier = EmotionClassifier(load_model("trained-models/..."), "trained-models/config.yaml")
+
+pyfer = PyFER(detector, classifier)
+```
+Try using each and see which one works best for you!
 
 
 

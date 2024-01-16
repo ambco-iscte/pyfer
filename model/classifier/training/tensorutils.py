@@ -1,14 +1,11 @@
 import time
 from collections import defaultdict
+from typing import Any
 
 import keras.src.callbacks
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
-from typing import Any
-
-from sklearn.utils import class_weight
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
 
@@ -198,8 +195,8 @@ def full_evaluate_tensor(
     model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
         filepath=f'./models/checkpoints/{model.name}',
         save_weights_only=True,
-        monitor='val_accuracy',
-        mode='max',
+        monitor='val_loss',
+        mode='min',
         save_best_only=True
     )
 

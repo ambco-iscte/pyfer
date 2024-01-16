@@ -147,13 +147,13 @@ def execute(
     else:
         raise AssertionError('Model input did not match required format. Should be either '
                              '(x_train, y_train, x_val, y_val, x_test, y_test) or (train_ds, val_ds, test_ds).')
-    model.save(f'./models/{model_name}.keras', save_format='keras')
+    model.save(f'./models/{model_name}')
 
     # Plot Model Results
     plot(model_name, labels, history, metric_values, time_value, epochs, conf_matrix)
 
 
-def fer(transfer_learning_type: TransferLearningType, model_name: str, model_config):
+def fer(transfer_learning_type: TransferLearningType, model_name: str, model_config) -> (int, int, int):
     # Get data
     x_train, x_val, x_test, y_train, y_val, y_test = load_fer(
         'fer/fer2013.csv',
@@ -189,12 +189,14 @@ def fer(transfer_learning_type: TransferLearningType, model_name: str, model_con
         batch_size=model_config['FER']['batch_size']
     )
 
+    return len(x_train), len(x_val), len(x_test)
+
 
 def affectnet(
         transfer_learning_type: TransferLearningType,
         name: str,
         model_config,
-        sample_size: int = -1,
+        sample_sizes: (int, int, int) = (-1, -1, -1),
         shape: (int, int) = (224, 224)
 ):
     # Get data
@@ -205,8 +207,13 @@ def affectnet(
     )
 
     # Sample training set (too big of a set causes excessively long training times and/or memory exceptions)
-    if sample_size > 0:
-        train_ds = train_ds.take(sample_size)
+    sample_size_train, sample_size_val, sample_size_test = sample_sizes
+    if sample_size_train > 0:
+        train_ds = train_ds.take(sample_size_train)
+    if sample_size_val > 0:
+        val_ds = val_ds.take(sample_size_val)
+    if sample_size_test > 0:
+        test_ds = test_ds.take(sample_size_test)
 
     # Get configuration
     config = yaml.load(open('affectnet/config.yaml'), yaml.CLoader)
@@ -243,11 +250,12 @@ if __name__ == "__main__":
     cfg = yaml.load(open('config.yaml'), yaml.CLoader)
 
     # FER+
-    #fer(TransferLearningType.MOBILENET, 'FERPlusUsingMobileNet', cfg)
-    #fer(TransferLearningType.RESNET, 'FERPlusUsingResNet', cfg)
-    #fer(TransferLearningType.NONE, 'FERPlusFromScratch', cfg)
+    fer(TransferLearningType.MOBILENET, 'FERPlusUsingMobileNet', cfg)
+    fer(TransferLearningType.RESNET, 'FERPlusUsingResNet', cfg)
+    fer(TransferLearningType.NONE, 'FERPlusFromScratch', cfg)
 
     # AffectNet
-    #affectnet(TransferLearningType.MOBILENET, 'AffectNetUsingMobileNet', cfg, shape=(128, 128), sample_size=50000)
-    #affectnet(TransferLearningType.RESNET, 'AffectNetUsingResNet', cfg, shape=(128, 128), sample_size=50000)
-    affectnet(TransferLearningType.NONE, 'AffectNetFromScratch', cfg, shape=(128, 128), sample_size=50000)
+    sample_sizes = (50000, -1, -1)
+    affectnet(TransferLearningType.MOBILENET, 'AffectNetUsingMobileNet', cfg, shape=(128, 128), sample_sizes=sample_sizes)
+    affectnet(TransferLearningType.RESNET, 'AffectNetUsingResNet', cfg, shape=(128, 128), sample_sizes=sample_sizes)
+    affectnet(TransferLearningType.NONE, 'AffectNetFromScratch', cfg, shape=(128, 128), sample_sizes=sample_sizes)

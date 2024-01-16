@@ -1,8 +1,7 @@
-import numpy as np
-import yaml
 import cv2 as cv
+import numpy as np
 import tensorflow as tf
-
+import yaml
 from keras import Model
 
 
@@ -17,6 +16,7 @@ class EmotionClassifier:
         n, w, h, c = self.classifier.input_shape
 
         # Resize image to that size
+        # TODO: only resize if needed?
         img = cv.resize(image, (w, h))
 
         # Add an outer axis, i.e. (w,h,c) goes to (1,w,h,c) so model doesn't scream

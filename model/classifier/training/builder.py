@@ -1,10 +1,9 @@
 from enum import Enum
 
 import keras
-
 from keras import layers, metrics, losses, optimizers
-from keras.src.applications.resnet_v2 import ResNet50V2
 from keras.src.applications.mobilenet_v2 import MobileNetV2
+from keras.src.applications.resnet_v2 import ResNet50V2
 
 
 class TransferLearningType(Enum):
@@ -104,8 +103,10 @@ def build(
 
     # CNN using categorical classification with softmax activation
     model = keras.Sequential([
+        # Data Augmentation
         layers.RandomFlip("horizontal", input_shape=(img_width, img_height, 3)),
         layers.RandomRotation(0.2),
+        
         layers.Rescaling(2./255, offset=-1),  # Rescale to [-1, 1]
 
         convolutional_model,
