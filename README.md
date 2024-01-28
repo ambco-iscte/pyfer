@@ -28,6 +28,8 @@ course as part of the
 [Master's (MSc) in Computer Engineering](https://www.iscte-iul.pt/course/12/master-msc-in-computer-engineering) 
 programme at [Iscte-IUL](https://www.iscte-iul.pt/).
 
+- Grade: 20/20
+
 <br>
 
 ## How to Use
